@@ -1,0 +1,14 @@
+C:\Users\deanr\Desktop\Programs\Journal\bin\Debug\Journal.exe.config
+C:\Users\deanr\Desktop\Programs\Journal\bin\Debug\Journal.exe.manifest
+C:\Users\deanr\Desktop\Programs\Journal\bin\Debug\Journal.application
+C:\Users\deanr\Desktop\Programs\Journal\bin\Debug\Journal.exe
+C:\Users\deanr\Desktop\Programs\Journal\bin\Debug\Journal.pdb
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.csprojAssemblyReference.cache
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.Journal.resources
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.Properties.Resources.resources
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.csproj.GenerateResource.cache
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.csproj.CoreCompileInputs.cache
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.exe.manifest
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.application
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.exe
+C:\Users\deanr\Desktop\Programs\Journal\obj\Debug\Journal.pdb
