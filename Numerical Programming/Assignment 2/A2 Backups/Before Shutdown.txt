@@ -1,0 +1,148 @@
+/***************************************************************************
+ *
+ *   File        : tasks.c
+ *   Student Id  : 913634
+ *   Name        : Dean Raguso	
+ *
+ ***************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <sys/time.h>
+#include <string.h>
+#include "tasks.h"
+
+//Constants
+#define 	MEM_SIZE_GUESS	6
+#define 	MEM_SIZE_INC	2
+#define 	GAMMA			1.4
+#define 	PI				acos(-1.0)
+#define 	ACCURACY		pow(10,-7)
+#define 	THETA_DIV		0.5
+#define 	NINETY_DEGREES		90
+#define 	ZERO_DEGREES		0
+
+//Function Prototypes
+double f(double B, double theta, double M, double gamma);
+double fprime(double B, double theta, double M, double gamma);
+double rads(double degrees);
+double degs(double radians);
+double nrhap(double B, double theta, double M, double gamma, double accuracy);
+
+//----------------------------------------------------------------------------
+
+void shockwave(const char* q2_file)
+{
+	//Extract the data.
+
+		//Open File
+		FILE* fp;
+		fp = fopen(q2_file, "r");
+		
+		//Create data structures
+		double Mach_a, theta, beta_l, beta_u, gamma, Mach_b;
+		int Mach_c_size = 0, Mach_c_mem = MEM_SIZE_GUESS;
+		double* Mach_c = (double*)malloc(sizeof(double)*Mach_c_mem);
+		
+		//Extract the data
+		while(fgetc(fp) != '\n'){} //Cycle through sub-headings.
+		fscanf(fp,"%lf,%lf,%lf,%lf,%lf\n",&Mach_a,&theta,&beta_l,&beta_u,
+			&gamma);    
+		fscanf(fp,"M\n%lf\nM\n", &Mach_b);	
+		while(fscanf(fp, "%lf\n", &Mach_c[Mach_c_size])==1){
+			Mach_c_size++;
+			if(Mach_c_size == Mach_c_mem){ //If I've reached the memories end.
+				Mach_c_mem += MEM_SIZE_INC;
+				Mach_c = (double*)realloc(Mach_c, Mach_c_mem*sizeof(double));
+			}
+		}
+	
+	//Call function and print outputs, 2.3 a).
+	double Bl = nrhap(rads(beta_l),rads(theta),Mach_a,GAMMA,ACCURACY);
+	double Bu = nrhap(rads(beta_u),rads(theta),Mach_a,GAMMA,ACCURACY);
+		
+	//Call function and print outputs 2.3 b).
+	
+		//Create Output file
+		FILE* fp1;
+		fp1 = fopen("2.3.csv","w");
+	
+	int i;
+	fprintf(fp1, "theta, Bl, Bu\n");
+
+	for(i=20; i<=NINETY_DEGREES; i++){ //Guessing first points are 0 and 90.
+		Bl = nrhap(rads(i),rads(i),Mach_b,GAMMA,ACCURACY);
+		Bu = nrhap(rads(80),rads(i),Mach_b,GAMMA,ACCURACY);
+		
+		fprintf(fp1, "%d,%0.6lf,%0.6lf\n", i, Bl, Bu);
+		fflush(fp1);
+	}
+	
+	//Free and close everything.
+	fclose(fp);                                                  
+	fclose(fp1);
+	free(Mach_c);
+}
+
+void linalgbsys(const char* q4_file)
+{                                                       
+    printf("linalgbsys() - IMPLEMENT ME!\n");
+}
+
+void interp(const char* q5_file, const double xo)
+{
+    printf("interp() - IMPLEMENT ME!\n");
+}
+
+void waveeqn(const char* q6_file)
+{
+    printf("heateqn() - IMPLEMENT ME!\n");
+}
+
+//---------------------Functions--------------------------------------------
+//f(B) function, (2). Generalized as f(B, theta, M,gamma).
+double f(double B, double theta, double M, double gamma){
+	double sum1, sum2, sum3, sum4;
+	sum1 = 2/(tan(B));
+	sum2 = M*M*sin(B)*sin(B) - 1;
+	sum3 = M*M*(gamma + cos(2*B)) + 2;
+	sum4 = -tan(theta);
+	
+	return sum1*sum2/sum3 + sum4;
+}
+
+//fprime(B, theta, M, gamma), f differentiated with respect to B.
+double fprime(double B, double theta, double M, double gamma){
+	double sum1 = 2*(M*M*((M*M*sin(B)*sin(B)+1)*cos(B)*cos(B)-sin(B)*sin(B))*
+		(M*M*sin(B)*sin(B)-1))+cos(2*B);
+	double sum2 = 2*M*M*sin(B)*(M*M*sin(B)*sin(B)-1)*cos(B)*sin(2*B);
+	double sum3 = (gamma*M*M+2)*((M*M*sin(B)*sin(B)+1)*cos(B)*cos(B)
+		-sin(B)*sin(B)*(M*M*sin(B)*sin(B)-1));
+	double sum4 = sin(B)*sin(B)*(M*M*cos(2*B)+gamma*M*M + 2)*
+		(M*M*cos(2*B)+gamma*M*M + 2);
+	
+	return (sum1+sum2+sum3)/sum4;
+}
+
+//Newton Rhapson Function
+double nrhap(double B, double theta, double M, double gamma, double accuracy){
+	//Assumes inputs are in radians.
+	
+	double out = B;
+	
+	while(sqrt(f(out,theta,M,gamma)*f(out,theta,M,gamma)) > accuracy){
+		out = nrhap(out - (f(out,theta,M,gamma)/fprime(out,theta,M,gamma)),
+			theta, M, gamma,accuracy);             
+	}
+	return out;
+}
+                                                          
+//Degrees to Radians
+double rads(double degrees){
+	return PI*degrees/180.0;	                                      
+}
+
+//Radians to Degrees
+double degs(double radians){
+	return radians*180.0/PI;	
+}

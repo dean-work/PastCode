@@ -1,0 +1,229 @@
+/***************************************************************************
+ *
+ *   File        : tasks.c
+ *   Student Id  : 913634
+ *   Name        : Dean Raguso	
+ *
+ ***************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <sys/time.h>
+#include <string.h>
+#include "tasks.h"
+
+//Constants
+#define 	MEM_SIZE_GUESS		6
+#define 	MEM_SIZE_INC		2
+#define 	GAMMA				1.4
+#define 	PI					acos(-1.0)
+#define 	ACCURACY			pow(10,-7)          
+#define 	THETA_DIV			0.5
+#define 	NINETY_DEGREES		90
+#define 	ZERO_DEGREES		0
+#define 	ITERATION_THRESH 	100000
+#define 	MAX_GRAD			10000
+#define 	MIN_GRAD			pow(10,-7)
+#define 	MAX_F				10000
+#define 	MIN_NUDGE			pow(10,-2)
+
+//Function Prototypes
+double f(double B, double theta, double M, double gamma);
+double fprime(double B, double theta, double M, double gamma);
+double rads(double degrees);
+double degs(double radians);
+double nrhap(double B, double theta, double M, double gamma, double accuracy);
+double sign(double x);
+double left(double theta, double M);
+double cot(double angle);
+
+//----------------------------------------------------------------------------
+
+void shockwave(const char* q2_file)
+{
+	//Extract the data.
+
+		//Open File
+		FILE* fp;
+		fp = fopen(q2_file, "r");
+		
+		//Create data structures
+		double Mach_a, theta, beta_l, beta_u, gamma, Mach_b;
+		int Mach_c_size = 0, Mach_c_mem = MEM_SIZE_GUESS;
+		double* Mach_c = (double*)malloc(sizeof(double)*Mach_c_mem);
+		
+		//Extract the data
+		while(fgetc(fp) != '\n'){} //Cycle through sub-headings.
+		fscanf(fp,"%lf,%lf,%lf,%lf,%lf\n",&Mach_a,&theta,&beta_l,&beta_u,
+			&gamma);    
+		fscanf(fp,"M\n%lf\nM\n", &Mach_b);	
+		while(fscanf(fp, "%lf\n", &Mach_c[Mach_c_size])==1){
+			Mach_c_size++;
+			if(Mach_c_size == Mach_c_mem){ //If I've reached the memories end.
+				Mach_c_mem += MEM_SIZE_INC;
+				Mach_c = (double*)realloc(Mach_c, Mach_c_mem*sizeof(double));
+			}
+		}
+	
+	//Call function and print outputs, 2.3 a).
+	double Bu=1, Bl=1;
+	nrhap(rads(beta_l),rads(theta),Mach_a,GAMMA,ACCURACY);
+	nrhap(rads(beta_u),rads(theta),Mach_a,GAMMA,ACCURACY);
+	
+	//PRINT TO OUTPUTS HERE
+	
+	//Call function and print outputs 2.3 b).
+	
+		//Create Output file
+		FILE* fp1, *fp2;
+		fp1 = fopen("2.3.csv","w");
+		fp2 = fopen("out_shock.csv","w");
+	
+	int i;
+	double lguess;
+	fprintf(fp1, "theta, Bl, Bu\n");
+	
+	for(i=0; (i<=NINETY_DEGREES)&&(Bl); i++){ 
+		lguess = left(rads(i),Mach_b);
+		Bl = nrhap(lguess,rads(i),Mach_b,GAMMA,ACCURACY);
+		Bu = nrhap(rads(NINETY_DEGREES),rads(i),Mach_b,GAMMA,ACCURACY);
+		
+		fprintf(fp1, "%d,%0.6lf,%0.6lf\n", i, degs(Bl), degs(Bu));
+		fflush(fp1);
+	}
+	
+	//2.3 c)
+	
+		//Sub-headings
+		fprintf(fp2,"M,theta,beta_lower,beta_upper\n");
+		
+		//Loop for all M values requested
+		for(int m=0; m<Mach_c_size; m++){
+			
+			//Loop through every theta, finding the Bu Bl values
+			for(i=0; (i<=NINETY_DEGREES); i++){ 
+
+				lguess = left(rads(i),Mach_b);
+				Bl = nrhap(lguess,rads(i),Mach_c[m],GAMMA,ACCURACY);
+				Bu = nrhap(rads(NINETY_DEGREES),rads(i),Mach_c[m],
+					GAMMA,ACCURACY);
+				
+				if((!Bl) || (!Bu)){
+					break;	
+				}
+				
+				fprintf(fp2, "%0.6lf,%1d,%0.6lf,%0.6lf\n",
+					Mach_c[m], i, degs(Bl), degs(Bu));
+	}
+			
+			
+		}
+	
+	//Free and close everything.
+	fclose(fp);                                                  
+	fclose(fp1);
+	fclose(fp2);
+	free(Mach_c);
+}
+
+void linalgbsys(const char* q4_file)
+{                                                       
+    printf("linalgbsys() - IMPLEMENT ME!\n");
+}
+
+void interp(const char* q5_file, const double xo)
+{
+    printf("interp() - IMPLEMENT ME!\n");
+}
+
+void waveeqn(const char* q6_file)
+{
+    printf("heateqn() - IMPLEMENT ME!\n");
+}
+
+//---------------------Functions--------------------------------------------
+//f(B) function, (2). Generalized as f(B, theta, M,gamma).
+double f(double B, double theta, double M, double gamma){
+	double sum1, sum2;
+	sum1 = 2*(1/tan(B))*(M*M*sin(B)*sin(B) - 1)/(M*M*(gamma + cos(2*B)) + 2);
+	sum2 = -tan(theta);
+	
+	return sum1 + sum2;
+}
+
+//fprime function.
+double fprime(double B, double theta, double M, double gamma){
+
+	return (4*pow(M,2)*cos(B)*cot(B)*sin(B))/((gamma + cos(2*B))*pow(M,2) + 2) 
+		-(2*(pow(cot(B),2) + 1)*(pow(M,2)*pow(sin(B),2) - 1))/
+		((gamma + cos(2*B))*pow(M,2) + 2) + (4*pow(M,2)*sin(2*B)*cot(B)*
+		(pow(M,2)*pow(sin(B),2) - 1))/
+		pow(pow(M,2)*(gamma + cos(2*B)) + 2,2);
+}
+
+//Newton Rhapson Function
+double nrhap(double B, double theta, double M, double gamma, double accuracy){
+	//Assumes inputs are in radians.
+	
+	double out = B;
+	double tmp_prime, tmp;
+	int count = 0;
+	
+	while((sqrt(f(out,theta,M,gamma)*f(out,theta,M,gamma)) > accuracy) &&
+		(count < ITERATION_THRESH)){
+		count++;
+		
+		//The current point.
+		tmp = f(out,theta,M,gamma); //tmp f value
+		tmp_prime = fprime(out,theta,M,gamma);
+		
+		//The next point.
+		out = out - (tmp/tmp_prime); //new_out
+		
+		//printf("%lf - %0.6lf - %lf\n", out, tmp, tmp_prime);
+	      
+		if((out<0)||(out>PI/2)){ //If this occurs, no solution.
+			out = 0;
+			break;
+		}
+	}
+	
+	if(count == ITERATION_THRESH){
+		return 0;	//beta should never be 0.
+	}
+	
+	return out;
+}
+                                                          
+//Degrees to Radians
+double rads(double degrees){
+	return PI*degrees/180.0;	                                      
+}
+
+//Radians to Degrees
+double degs(double radians){
+	return radians*180.0/PI;	
+}
+
+//Returns the sign of a double
+double sign(double x){
+	if(x > 0){
+		return 1.0;	
+	} else {
+		return -1.0;	
+	}
+}
+
+//Left guess for newton rhapson, takes radians returns radians.
+double left(double theta, double M){
+	if(theta<rads(50)){
+		return theta + asin(1/M);	
+	} else {
+		return theta;
+	}
+}
+
+//Cotangent function
+double cot(double angle){
+	return cos(angle)/sin(angle);	
+}

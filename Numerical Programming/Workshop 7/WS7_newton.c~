@@ -1,0 +1,37 @@
+/* The Newton Raphson method for finding a root of an equation.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+/* Define your guess, convergence criterion */
+
+
+/* Declare your functions. f will evaluate f(x) while fprime will evaluate df/dx(x). newton will perform the iterative loop to estimate next value for x all the while comparing f(x) with the convergence criterion eps*/
+
+double f();
+
+double fprime();
+
+double newtonraph();
+
+int
+main(int argc, char *argv[]) {
+	double x;
+	x = newtonraph(LEFT, 1e-4, 1000);
+	printf("(main) x = %.10f, f(x) = %12.10f\n", x, f(x));
+	return 0;
+}
+
+/* Define your functions*/
+double f() {
+	return ;
+}
+double fprime() {
+	return ;
+}
+
+double newtonraph() {
+	return ;
+}
+

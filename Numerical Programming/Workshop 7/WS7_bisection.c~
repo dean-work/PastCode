@@ -1,0 +1,34 @@
+/* The bisection method for finding a root of an equation.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+/* Define your lower and upper bounds for bracket */
+
+/* Define your convergence criterion */
+
+/* Declare your functions. f will evaulate the function f(x) for supplied x while bisection will obtain mean and compare which half bracket to keep and which to discard.*/
+double f();
+
+double bisection();
+
+int
+main(int argc, char *argv[]) {
+	double x;
+	x = bisection();
+	printf("(main) x = %.10f, f(x) = %12.10f\n", x, f(x));
+	return 0;
+}
+
+/* Define your functions here */
+double
+f() {
+	return ;
+}
+
+double
+bisection() {
+	return ;
+}
+

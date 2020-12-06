@@ -1,0 +1,72 @@
+/***************************************************************************
+ *
+ *   File        : tasks.c
+ *   Student Id  : 913634
+ *   Name        : Dean Raguso	
+ *
+ ***************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <sys/time.h>
+#include <string.h>
+#include "tasks.h"
+
+//Constants
+#define 	MEM_SIZE_GUESS	6
+#define 	MEM_SIZE_INC	2
+
+//Function Prototypes
+
+//----------------------------------------------------------------------------
+
+void shockwave(const char* q2_file)
+{
+	//Extract the data.
+		//Open File
+		FILE* fp;
+		fp = fopen(q2_file, "r");
+		
+		//Create data structures
+		double Mach_a, theta, beta_l, beta_u, gamma, Mach_b;
+		int Mach_c_size = 0, Mach_c_mem = MEM_SIZE_GUESS;
+		double* Mach_c = (double*)malloc(sizeof(double)*Mach_c_mem);
+		
+		//Extract the data
+		while(fgetc(fp) != '\n'){} //Cycle through sub-headings.
+		fscanf(fp,"%lf,%lf,%lf,%lf,%lf\n",&Mach_a,&theta,&beta_l,&beta_u,
+			&gamma);    
+		fscanf(fp,"M\n%lf\nM\n", &Mach_b);	
+		while(fscanf(fp, "%lf\n", &Mach_c[Mach_c_size])==1){
+			Mach_c_size++;
+			if(Mach_c_size == Mach_c_mem){ //If I've reached the memories end.
+				Mach_c_mem += MEM_SIZE_INC;
+				Mach_c = (double*)realloc(Mach_c, Mach_c_mem*sizeof(double));
+			}
+		}
+	//
+		
+	//
+	
+	//Free and close everything.
+	fclose(fp);
+	free(Mach_c);
+}
+
+void linalgbsys(const char* q4_file)
+{
+    printf("linalgbsys() - IMPLEMENT ME!\n");
+}
+
+void interp(const char* q5_file, const double xo)
+{
+    printf("interp() - IMPLEMENT ME!\n");
+}
+
+void waveeqn(const char* q6_file)
+{
+    printf("heateqn() - IMPLEMENT ME!\n");
+}
+
+//---------------------Functions--------------------------------------------
+//Newton Rhapson Function
